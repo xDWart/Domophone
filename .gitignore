@@ -1,0 +1,7 @@
+Eagle/*.l#*
+Eagle/*.b#*
+Eagle/*.s#*
+.pioenvs
+.piolibdeps
+.clang_complete
+.gcc-flags.json
