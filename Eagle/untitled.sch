@@ -4822,7 +4822,7 @@ Source: http://www.mouser.com/ds/2/392/products_18-2245.pdf</description>
 <pinref part="U$7" gate="G$1" pin="CAT"/>
 </segment>
 </net>
-<net name="IN" class="0">
+<net name="INPUT" class="0">
 <segment>
 <pinref part="U$8" gate="G$1" pin="COL"/>
 <wire x1="43.18" y1="20.32" x2="22.86" y2="20.32" width="0.1524" layer="91"/>
@@ -4945,7 +4945,7 @@ Source: http://www.mouser.com/ds/2/392/products_18-2245.pdf</description>
 <wire x1="40.64" y1="25.4" x2="43.18" y2="25.4" width="0.1524" layer="91"/>
 </segment>
 </net>
-<net name="NR" class="0">
+<net name="OPEN" class="0">
 <segment>
 <pinref part="R2" gate="G$1" pin="1"/>
 <wire x1="10.16" y1="55.88" x2="7.62" y2="55.88" width="0.1524" layer="91"/>
@@ -5001,7 +5001,7 @@ Source: http://www.mouser.com/ds/2/392/products_18-2245.pdf</description>
 <junction x="27.94" y="99.06"/>
 </segment>
 </net>
-<net name="SW1" class="0">
+<net name="RELAY1" class="0">
 <segment>
 <pinref part="R4" gate="G$1" pin="1"/>
 <wire x1="2.54" y1="134.62" x2="0" y2="134.62" width="0.1524" layer="91"/>
@@ -5013,7 +5013,7 @@ Source: http://www.mouser.com/ds/2/392/products_18-2245.pdf</description>
 <label x="116.84" y="30.48" size="1.778" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
-<net name="SW2" class="0">
+<net name="RELAY2" class="0">
 <segment>
 <pinref part="R6" gate="G$1" pin="1"/>
 <wire x1="2.54" y1="88.9" x2="0" y2="88.9" width="0.1524" layer="91"/>
