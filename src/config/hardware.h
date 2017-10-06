@@ -3,6 +3,6 @@
 
 #define IN_PIN              14
 
-#define SOUND_RELAY         15
-#define PHONE_RELAY         13
+#define RELAY1              15
+#define RELAY2              13
 #define OPEN_RELAY          4

@@ -14,37 +14,35 @@ bool relayToggle(uint8_t id) {
 }
 
 void relaysSetup() {
-    pinMode(SOUND_RELAY, OUTPUT);
-    ENABLE_SOUND();
+    pinMode(RELAY2, OUTPUT);
+    DOMOPHONE(true);
 
-    pinMode(PHONE_RELAY, OUTPUT);
+    pinMode(RELAY1, OUTPUT);
     PICKUP_PHONE(false);
 
     pinMode(OPEN_RELAY, OUTPUT);
-    CLOSE_DOOR();
+    CLOSE();
 }
 
-void ENABLE_SOUND() {
-    ENABLE_SOUND(true);
-}
-
-void ENABLE_SOUND(bool to) {
-    relayStatus(SOUND_RELAY, !to);
+void DOMOPHONE(bool to) {
+    relayStatus(RELAY2, !to);
 }
 
 void PICKUP_PHONE() {
     PICKUP_PHONE(true);
-    ENABLE_SOUND(); //включить звук (перекинуть реле для ведения разговора)
+    DOMOPHONE(false); //перекинуть реле для перехвата управления
 }
 
 void PICKUP_PHONE(bool to) {
-    relayStatus(PHONE_RELAY, to);
+    relayStatus(RELAY1, to);
 }
 
-void OPEN_DOOR() {
+void OPEN() {
     relayStatus(OPEN_RELAY, true);
+    Serial.println("Open");
 }
 
-void CLOSE_DOOR() {
+void CLOSE() {
     relayStatus(OPEN_RELAY, false);
+    Serial.println("Close");
 }

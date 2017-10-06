@@ -12,13 +12,19 @@ void eventsSetup(){
 void eventsloop(){
     timer1.update();
 
-    if (TestEvent_Done(EVNT_OPEN_DOOR)) OPEN_DOOR();
-    if (TestEvent_Done(EVNT_CLOSE_DOOR)) CLOSE_DOOR();
+    if (TestEvent_Done(EVNT_OPEN_DOOR)) {
+        OPEN();
+    }
+
+    if (TestEvent_Done(EVNT_CLOSE_DOOR)) {
+        CLOSE();
+    }
 
     if (TestEvent_Done(EVNT_PUTDOWN_PHONE)) {
         PICKUP_PHONE(false);
-        ENABLE_SOUND(Var[SOUND].st); //выключить звук, если был выключен
-        SetEvent(EVNT_DOMOPHONE_WAIT);
+        CLOSE();
+        DOMOPHONE(Var[SOUND].st); //подключить трубку, если была включена
+        SetEvent(EVNT_DOMOPHONE_WAIT,1000);
     }
 
     if (TestEvent_Done(EVNT_DOMOPHONE_WAIT)) {

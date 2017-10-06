@@ -30,12 +30,22 @@ void initVar() {
   root.printTo(thing_config[CALLING]);
 
   JsonObject& root1 = jsonBuffer.createObject();
+  Var[OPENQUIET].sTopic = prefix + "/" + deviceID + "/openquiet";
+  setStatus(&Var[OPENQUIET], false);
+  root1["id"] = String(OPENQUIET);
+  root1["widget"] = "toggle";
+  root1["topic"]  = Var[OPENQUIET].sTopic;
+  root1["descr"]  = "Открыть беззвучно";
+  root1["style1"] = "padding-top:10px;";
+  root1["descrStyle"] = "font-size:20px;";
+  root1.printTo(thing_config[OPENQUIET]);
+
   Var[OPENONCE].sTopic = prefix + "/" + deviceID + "/openonce";
   setStatus(&Var[OPENONCE], false);
   root1["id"] = String(OPENONCE);
   root1["widget"] = "toggle";
   root1["topic"]  = Var[OPENONCE].sTopic;
-  root1["descr"]  = "Открыть разово";
+  root1["descr"]  = "Открыть со звуком";
   root1["style1"] = "padding-top:10px;";
   root1["descrStyle"] = "font-size:20px;";
   root1.printTo(thing_config[OPENONCE]);
@@ -192,7 +202,9 @@ void callback(const MQTT::Publish& sub) {
     Serial.print("] ");
     Serial.println(sub.payload_string());
 
-    if (sub.topic() == Var[OPENONCE].sTopic + "/control") {
+    if (sub.topic() == Var[OPENQUIET].sTopic + "/control") {
+        changeSt = OPENQUIET;
+    } else if (sub.topic() == Var[OPENONCE].sTopic + "/control") {
         changeSt = OPENONCE;
     } else if (sub.topic() == Var[SOUND].sTopic + "/control") {
         changeSt = SOUND;
@@ -214,12 +226,25 @@ void callback(const MQTT::Publish& sub) {
         pubStatus(Var[changeSt].sTopic, Var[changeSt].stat);
         switch (changeSt) {
             case SOUND:
-                ENABLE_SOUND(changeTo);
+                DOMOPHONE(Var[SOUND].st);
             break;
+            case OPENQUIET:
             case OPENONCE:
             case OPENALL:
             case RESETALL:
                 if (Var[changeSt].st) {
+                    if (changeSt != OPENQUIET) {
+                        DOMOPHONE(Var[SOUND].st);
+                        setStatus(&Var[OPENQUIET], false);
+                        pubStatus(Var[OPENQUIET].sTopic, Var[OPENQUIET].stat);
+                    } else {
+                        DOMOPHONE(!changeTo);
+                        SavedVar[OPENQUIET] = Var[OPENQUIET].st;
+                        if (Var[CALLING].st == ST_CALLING) {
+                            setStatusCall(ST_OPENING);
+                            pubStatus(Var[CALLING].sTopic, Var[CALLING].stat);
+                        }
+                    }
                     if (changeSt != OPENONCE) {
                         setStatus(&Var[OPENONCE], false);
                         pubStatus(Var[OPENONCE].sTopic, Var[OPENONCE].stat);
@@ -303,11 +328,12 @@ void MQTT_loop() {
             DomophoneStatus = CALL;
             openCount = 0;
 
+            SavedVar[OPENQUIET] = Var[OPENQUIET].st;
             SavedVar[OPENONCE] = Var[OPENONCE].st;
             SavedVar[OPENALL] = Var[OPENALL].st;
             SavedVar[RESETALL] = Var[RESETALL].st;
 
-            if (!(SavedVar[OPENONCE] || SavedVar[OPENALL] || SavedVar[RESETALL])) {
+            if (!(SavedVar[OPENQUIET] || SavedVar[OPENONCE] || SavedVar[OPENALL] || SavedVar[RESETALL])) {
                 push(msg);
                 setStatusCall(ST_CALLING);
             } else {
@@ -321,10 +347,10 @@ void MQTT_loop() {
             SetEvent(EVNT_DOMOPHONE_WAIT,10000);
         }
     } else { //в режиме разговора
-        if (SavedVar[OPENONCE] || SavedVar[OPENALL]) { //открыть
+        if (SavedVar[OPENQUIET] || SavedVar[OPENONCE] || SavedVar[OPENALL]) { //открыть
             if (openCount < 3) {//Впустить пару раз
                 ClrEvent(EVNT_DOMOPHONE_WAIT);
-                PICKUP_PHONE(); //Поднять трубку
+                if (openCount == 0) PICKUP_PHONE(); //Поднять трубку
                 if (TestEvent_Clr(EVNT_OPEN_DOOR) && TestEvent_Clr(EVNT_CLOSE_DOOR)) {
                     SetEvent(EVNT_OPEN_DOOR,1500);
                     SetEvent(EVNT_CLOSE_DOOR, 2500);
@@ -332,13 +358,22 @@ void MQTT_loop() {
                     Serial.println("Open " + String(openCount));
                 }
             } else {
-                if (TestEvent_Clr(EVNT_OPEN_DOOR) && TestEvent_Clr(EVNT_CLOSE_DOOR)) {
-                    Serial.println("Putdown phone after open");
-                    SetEvent(EVNT_PUTDOWN_PHONE); //Повесить трубку
+                if (openCount == 3) {
+                    if (TestEvent_Clr(EVNT_OPEN_DOOR) && TestEvent_Clr(EVNT_CLOSE_DOOR)) {
+                        Serial.println("Putdown phone after open");
+                        SetEvent(EVNT_PUTDOWN_PHONE); //Повесить трубку
 
-                    if (SavedVar[OPENONCE]) { //Сбросить флаг открыть разово
-                        setStatus(&Var[OPENONCE], false);
-                        pubStatus(Var[OPENONCE].sTopic, Var[OPENONCE].stat);
+                        if (SavedVar[OPENONCE]) { //Сбросить флаг открыть разово
+                            setStatus(&Var[OPENONCE], false);
+                            pubStatus(Var[OPENONCE].sTopic, Var[OPENONCE].stat);
+                        }
+
+                        if (SavedVar[OPENQUIET]) { //Сбросить флаг открыть разово
+                            setStatus(&Var[OPENQUIET], false);
+                            pubStatus(Var[OPENQUIET].sTopic, Var[OPENQUIET].stat);
+                        }
+
+                        openCount++;
                     }
                 }
             }

@@ -38,6 +38,7 @@ enum {
 
 enum {
  CALLING = 0,
+ OPENQUIET,
  OPENONCE,
  OPENALL,
  RESETALL,
