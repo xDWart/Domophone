@@ -229,6 +229,7 @@ void callback(const MQTT::Publish& sub) {
                 DOMOPHONE(Var[SOUND].st);
             break;
             case OPENQUIET:
+                DOMOPHONE(!changeTo);
             case OPENONCE:
             case OPENALL:
             case RESETALL:
@@ -238,7 +239,6 @@ void callback(const MQTT::Publish& sub) {
                         setStatus(&Var[OPENQUIET], false);
                         pubStatus(Var[OPENQUIET].sTopic, Var[OPENQUIET].stat);
                     } else {
-                        DOMOPHONE(!changeTo);
                         SavedVar[OPENQUIET] = Var[OPENQUIET].st;
                         if (Var[CALLING].st == ST_CALLING) {
                             setStatusCall(ST_OPENING);
